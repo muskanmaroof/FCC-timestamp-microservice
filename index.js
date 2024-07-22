@@ -18,12 +18,35 @@ app.get("/", function (req, res) {
   res.sendFile(__dirname + '/views/index.html');
 });
 
+const isInvalidDate = (date)=> date.toUTCString() === "Invalid Date";
 
 // your first API endpoint... 
-app.get("/api/hello", function (req, res) {
-  res.json({greeting: 'hello API'});
+app.get("/api/:date", function (req, res) {
+  let date = new Date(req.params.date);
+
+  if(isInvalidDate(date)){
+    date = new Date(+req.params.date);
+  }
+
+  if(isInvalidDate(date)){
+   res.json({error: "Invalid Date"}); 
+    return; // Bad Request (400) status code
+  }
+
+  // Return the JSON response with the Unix timestamp and UTC date string.
+  res.json({
+    unix:  date.getTime(),
+    utc:  date.toUTCString()  // e.g., "Thu, 01 Jan 1970 00:00:00 GMT"
+  });  
+
 });
 
+app.get("/api" , (req , res)=>{
+  res.json({
+    unix: new Date().getTime(),
+    utc: new Date().toUTCString()  // e.g., "Thu, 01 Jan 1970 00:00:00 GMT"
+  })
+})
 
 
 // Listen on port set in environment variable or default to 3000
